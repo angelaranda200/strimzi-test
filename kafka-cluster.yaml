@@ -1,0 +1,135 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: my-cluster
+spec:
+  kafka:
+    version: 3.7.0
+    replicas: 1
+    logging:
+      type: inline
+      loggers:
+        kafka.root.logger.level: "INFO"
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      # - name: tls
+      #   port: 9093
+      #   type: internal
+      #   tls: true
+      #   authentication:
+      #     type: scram-sha-512
+      #   configuration:
+      #     bootstrap:
+      #       host: kafka-bootstrap.products-ms4m.com
+      #     brokers:
+      #     - broker: 0
+      #       host: kafka-broker-0.products-ms4m.com
+      #     - broker: 1
+      #       host: kafka-broker-1.products-ms4m.com
+      #     class: nginx
+      - name: external2
+        port: 9094
+        type: ingress
+        tls: true
+        configuration:
+          bootstrap:
+            host: kafka-bootstrap.products-ms4m.com
+            annotations:
+              ingress.kubernetes.io/ssl-passthrough: "true"
+              nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+              nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+          brokers:
+          - broker: 0
+            host: kafka-broker-0.products-ms4m.com
+            annotations:
+              ingress.kubernetes.io/ssl-passthrough: "true"
+              nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+              nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+          - broker: 1
+            host: kafka-broker-1.products-ms4m.com
+            annotations:
+              ingress.kubernetes.io/ssl-passthrough: "true"
+              nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+              nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+          class: nginx
+    authorization:
+      type: simple
+      superUsers:
+        - my-user
+    config:
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+      inter.broker.protocol.version: "3.7"
+    storage:
+      type: jbod
+      volumes:
+      - id: 0
+        type: persistent-claim
+        size: 2Gi
+        deleteClaim: true
+  zookeeper:
+    replicas: 1
+    storage:
+      type: persistent-claim
+      size: 2Gi
+      deleteClaim: false
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: my-user
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      # Example ACL rules for consuming from my-topic using consumer group my-group
+      - resource:
+          type: topic
+          name: my-topic
+          patternType: literal
+        operations:
+          - Describe
+          - Read
+          - Write
+        host: "*"
+      - resource:
+          type: group
+          name: my-group
+          patternType: literal
+        operations:
+          - Read
+          - Describe
+          - Write
+        host: "*"
+      # Example ACL rules for producing to topic my-topic
+      - resource:
+          type: topic
+          name: my-topic
+          patternType: literal
+        operations:
+          - Create
+          - Describe
+          - Write
+        host: "*"
+      - resource:
+          type: group
+          name: my-group
+          patternType: literal
+        operations:
+          - Read
+          - Describe
+          - Write
+        host: "*"
