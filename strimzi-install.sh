@@ -1,20 +1,24 @@
+#!/bin/bash
+#KAFKA_HELM_CHART_VERSION=1.12.2
+KAFKA_NAMESPACE=kafka
+echo "Install Strinzi Kafka"
+kubectl create namespace ${KAFKA_NAMESPACE}
+helm delete strimzi-cluster-operator --namespace ${KAFKA_NAMESPACE}
+helm install strimzi-cluster-operator oci://quay.io/strimzi-helm/strimzi-kafka-operator --namespace ${KAFKA_NAMESPACE}
 
+kubectl delete -f ./kafka-cluster.yaml
+kubectl apply -f ./kafka-cluster.yaml
 
-helm install my-strimzi-cluster-operator oci://quay.io/strimzi-helm/strimzi-kafka-operator --namespace kafka
+cat /etc/hosts
+echo "192.168.18.190 kafka-broker-0.products-ms4m.com" | sudo tee -a /etc/hosts
+echo "192.168.18.190 kafka-bootstrap.products-ms4m.com" | sudo tee -a /etc/hosts
+cat /etc/hosts
 
+microk8s kubectl -n kube-system edit configmap/coredns
+    hosts {
+      192.168.18.190 kafka-broker-0.products-ms4m.com
+      192.168.18.190 kafka-bootstrap.products-ms4m.com
+      Fallthrough
+    }
 
-helm delete my-strimzi-cluster-operator --namespace kafka
-
-
-helm install ingress ingress-nginx/ingress-nginx --namespace ingress --values values-ingress.yaml 
-
-
-
-helm repo add strimzi https://strimzi.io/charts/
-helm pull strimzi --untar
-
-helm search repo strimzi
-
-helm show values strimzi/strimzi-kafka-operator  > values-strimzi.yaml
-
-helm install strimzi strimzi/strimzi-kafka-operator --values values-strimzi.yaml --namespace kafka
+curl -Lvk https://kafka-bootstrap.products-ms4m.com

@@ -1,7 +1,8 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: my-cluster
+  name: c4m-kafka-cluster
+  namespace: kafka
 spec:
   kafka:
     version: 3.7.0
@@ -15,22 +16,7 @@ spec:
         port: 9092
         type: internal
         tls: false
-      # - name: tls
-      #   port: 9093
-      #   type: internal
-      #   tls: true
-      #   authentication:
-      #     type: scram-sha-512
-      #   configuration:
-      #     bootstrap:
-      #       host: kafka-bootstrap.products-ms4m.com
-      #     brokers:
-      #     - broker: 0
-      #       host: kafka-broker-0.products-ms4m.com
-      #     - broker: 1
-      #       host: kafka-broker-1.products-ms4m.com
-      #     class: nginx
-      - name: external2
+      - name: external
         port: 9094
         type: ingress
         tls: true
@@ -58,7 +44,7 @@ spec:
     authorization:
       type: simple
       superUsers:
-        - my-user
+        - c4m-kafka-admin
     config:
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
@@ -86,9 +72,10 @@ spec:
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaUser
 metadata:
-  name: my-user
+  name: c4m-kafka-admin
+  namespace: kafka
   labels:
-    strimzi.io/cluster: my-cluster
+    strimzi.io/cluster: c4m-kafka-cluster
 spec:
   authentication:
     type: tls
