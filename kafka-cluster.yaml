@@ -85,38 +85,36 @@ spec:
       # Example ACL rules for consuming from my-topic using consumer group my-group
       - resource:
           type: topic
-          name: my-topic
+          name: "*"
           patternType: literal
-        operations:
-          - Describe
-          - Read
-          - Write
+        operation: All
         host: "*"
       - resource:
           type: group
-          name: my-group
+          name: "*"
           patternType: literal
-        operations:
-          - Read
-          - Describe
-          - Write
-        host: "*"
-      # Example ACL rules for producing to topic my-topic
-      - resource:
-          type: topic
-          name: my-topic
-          patternType: literal
-        operations:
-          - Create
-          - Describe
-          - Write
+        operation: All
         host: "*"
       - resource:
-          type: group
-          name: my-group
+          type: cluster
+          name: "*"
           patternType: literal
-        operations:
-          - Read
-          - Describe
-          - Write
+        operation: All
         host: "*"
+      - resource:
+          type: transactionalId
+          name: "*"
+          patternType: literal
+        operation: All
+        host: "*"
+---
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: my-topic
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: c4m-kafka-cluster
+spec:
+  partitions: 3
+  replicas: 1

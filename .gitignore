@@ -1,0 +1,63 @@
+### Terraform ###
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include override files you do wish to add to version control using negated pattern
+# !example_override.tf
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+
+# Ignore CLI configuration files
+.terraformrc
+.terraform
+terraform.rc
+terraform-plan-out
+.terraform.lock.hcl
+
+### Vagrant ###
+# General
+.vagrant/
+
+# Log files (if you are creating logs in debug mode, uncomment this)
+# *.log
+
+### Vagrant Patch ###
+*.box
+
+# End of https://www.toptal.com/developers/gitignore/api/terraform,vagrant
+
+*.code-workspace
+*.code-workspace
+**/secrets-initial-setup/*
+**/temp-executions/*
+aws-login.sh
+aws-login-env-*.sh*
+
+**/.DS_Store
+
+*.sh_
+*.tf_
+*.tpl_
+*.tfvars_
+TEMPORAL*
+temp-executions
+
+**/*.yml_
+
+.DS_Store
